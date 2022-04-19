@@ -19,7 +19,7 @@ public class APIClient implements Client {
     }
 
     @Override
-    public void publishCollection(String collectionId) throws Exception {
+    public void publishCollection(String collectionId){
         CloseableHttpResponse httpResponse;
 
         try {
@@ -35,7 +35,12 @@ public class APIClient implements Client {
             return;
         }
 
-        String body = EntityUtils.toString(httpResponse.getEntity());
+        String body;
+        try {
+            body = EntityUtils.toString(httpResponse.getEntity());
+        } catch (Exception e) {
+            body = "ERROR GETTING BODY FROM RESPONSE OBJECT";
+        }
 
         switch (statusCode) {
             case HttpStatus.SC_NOT_FOUND:
