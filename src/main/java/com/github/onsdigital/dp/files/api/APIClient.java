@@ -21,10 +21,10 @@ public class APIClient implements Client {
     @Override
     public void publishCollection(String collectionId) throws Exception {
         CloseableHttpResponse httpResponse;
-        HttpPatch request = new HttpPatch(hostname + "/collection/" + collectionId);
-        request.addHeader("Authorization", "Bearer " + authToken);
 
         try {
+            HttpPatch request = new HttpPatch(hostname + "/collection/" + collectionId);
+            request.addHeader("Authorization", "Bearer " + authToken);
             httpResponse = httpClient.execute(request);
         } catch (Exception e) {
             throw new ConnectionException("error talking to files api", e);
@@ -35,21 +35,19 @@ public class APIClient implements Client {
             return;
         }
 
+        String body = EntityUtils.toString(httpResponse.getEntity());
+
         switch (statusCode) {
-            case HttpStatus.SC_NOT_FOUND ->
-                    throw new NoFilesInCollectionException("No files found in collection: " + collectionId);
-            case HttpStatus.SC_CONFLICT ->
-                    throw new FileInvalidStateException("file in collection: " + collectionId + " not in a publishable state");
-            case HttpStatus.SC_FORBIDDEN ->
-                    throw new UnauthorizedException("You are not authorized to publish collections");
-            case HttpStatus.SC_INTERNAL_SERVER_ERROR -> {
-                String body = EntityUtils.toString(httpResponse.getEntity());
+            case HttpStatus.SC_NOT_FOUND:
+                throw new NoFilesInCollectionException("No files found in collection: " + collectionId);
+            case HttpStatus.SC_CONFLICT:
+                throw new FileInvalidStateException("file in collection: " + collectionId + " not in a publishable state");
+            case HttpStatus.SC_FORBIDDEN:
+                throw new UnauthorizedException("You are not authorized to publish collections");
+            case HttpStatus.SC_INTERNAL_SERVER_ERROR:
                 throw new ServerErrorException("Server error returned from file api: " + body);
-            }
-            default -> {
-                String body = EntityUtils.toString(httpResponse.getEntity());
+            default:
                 throw new UnexpectedResponseException("Unexpected error from file api: " + body);
-            }
         }
     }
 }

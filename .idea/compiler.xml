@@ -10,7 +10,7 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="dp-static-files-api-client-java" target="17" />
+      <module name="dp-static-files-api-client-java" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>

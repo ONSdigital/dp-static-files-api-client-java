@@ -128,4 +128,15 @@ class APIClientTest {
 
         assertNotNull(e.getCause());
     }
+
+    @Test
+    void handingIncorrectHostnameProvided() {
+        APIClient client = new APIClient("http://localhost:123456789", TOKEN);
+
+        Exception e = assertThrows(ConnectionException.class, () -> {
+            client.publishCollection(COLLECTION_ID);
+        });
+
+        assertNotNull(e.getCause());
+    }
 }
