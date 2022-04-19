@@ -19,7 +19,7 @@ jobs:
         java-version: '11'
         distribution: 'temurin'
         cache: maven
-    - name: Build with Maven
-      run: mvn -B dp-static-files-api-client-java --file pom.xml
     - name: Test
       run: mvn test
+    - name: Build
+      run: mvn package
