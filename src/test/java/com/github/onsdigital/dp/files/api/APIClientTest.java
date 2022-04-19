@@ -8,14 +8,11 @@ import okio.Buffer;
 import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@ExtendWith(MockitoExtension.class)
 class APIClientTest {
     public static final String COLLECTION_ID = "collection-id";
     public static final String TOKEN = "AUTHENTICATION-TOKEN";
