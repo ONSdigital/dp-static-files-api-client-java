@@ -4,27 +4,16 @@ import okhttp3.HttpUrl;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
-import org.apache.http.HttpRequest;
-import org.apache.http.HttpResponse;
+import okio.Buffer;
 import org.apache.http.HttpStatus;
-import org.apache.http.StatusLine;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.impl.client.CloseableHttpClient;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.Mock;
-import org.mockito.Mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class APIClientTest {
@@ -38,7 +27,7 @@ class APIClientTest {
 
         HttpUrl url = server.url("");
 
-        APIClient client = new APIClient(url.toString(), TOKEN);
+        Client client = new APIClient(url.toString(), TOKEN);
 
         try {
             client.publishCollection(COLLECTION_ID);
@@ -51,5 +40,92 @@ class APIClientTest {
         assertEquals("PATCH", request.getMethod());
         assertEquals("/collection/" + COLLECTION_ID, request.getPath());
         assertEquals("Bearer " + TOKEN, request.getHeader("Authorization"));
+    }
+
+    @Test
+    void attemptingToPublishACollectionWithNoFiles() {
+        MockWebServer server = new MockWebServer();
+        server.enqueue(new MockResponse().setResponseCode(HttpStatus.SC_NOT_FOUND));
+
+        HttpUrl url = server.url("");
+
+        APIClient client = new APIClient(url.toString(), TOKEN);
+
+        assertThrows(NoFilesInCollectionException.class, () -> {
+            client.publishCollection(COLLECTION_ID);
+        });
+    }
+
+    @Test
+    void attemptingToPublishACollectionWithAFileThatIsNotInUploadedState() {
+        MockWebServer server = new MockWebServer();
+        server.enqueue(new MockResponse().setResponseCode(HttpStatus.SC_CONFLICT));
+
+        HttpUrl url = server.url("");
+
+        APIClient client = new APIClient(url.toString(), TOKEN);
+
+        assertThrows(FileInvalidStateException.class, () -> {
+            client.publishCollection(COLLECTION_ID);
+        });
+    }
+
+    @Test
+    void handingAuthorizationFailure() {
+        MockWebServer server = new MockWebServer();
+        server.enqueue(new MockResponse().setResponseCode(HttpStatus.SC_FORBIDDEN));
+
+        HttpUrl url = server.url("");
+
+        APIClient client = new APIClient(url.toString(), TOKEN);
+
+        assertThrows(UnauthorizedException.class, () -> {
+            client.publishCollection(COLLECTION_ID);
+        });
+    }
+
+    @Test
+    void handlingServerFailure() {
+        String errBody = "the files server is broken";
+        MockWebServer server = new MockWebServer();
+        server.enqueue(new MockResponse().setResponseCode(HttpStatus.SC_INTERNAL_SERVER_ERROR).setBody(new Buffer().writeUtf8(errBody)));
+
+        HttpUrl url = server.url("");
+
+        APIClient client = new APIClient(url.toString(), TOKEN);
+
+        Exception e = assertThrows(ServerErrorException.class, () -> {
+            client.publishCollection(COLLECTION_ID);
+        });
+
+        assertTrue(e.getMessage().contains(errBody));
+    }
+
+    @Test
+    void handlingUnexpectedError() {
+        String responseBody = "its always tea time";
+        MockWebServer server = new MockWebServer();
+        server.enqueue(new MockResponse().setResponseCode(418).setBody(new Buffer().writeUtf8(responseBody)));
+
+        HttpUrl url = server.url("");
+
+        APIClient client = new APIClient(url.toString(), TOKEN);
+
+        Exception e = assertThrows(UnexpectedResponseException.class, () -> {
+            client.publishCollection(COLLECTION_ID);
+        });
+
+        assertTrue(e.getMessage().contains(responseBody));
+    }
+
+    @Test
+    void handingInvalidHostnameProvided() {
+        APIClient client = new APIClient("NOT A VALID HOSTNAME", TOKEN);
+
+        Exception e = assertThrows(ConnectionException.class, () -> {
+            client.publishCollection(COLLECTION_ID);
+        });
+
+        assertNotNull(e.getCause());
     }
 }
