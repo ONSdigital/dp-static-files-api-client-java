@@ -33,7 +33,7 @@ import com.github.onsdigital.dp.files.api.APIClient;
 import com.github.onsdigital.dp.files.api.Client;
 
         
-String filesApiURL = "http://apis.mydomain.com/files";
+String filesApiURL = "http://apis.mydomain.com";
 String serviceAuthToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9";
 Client filesApiClient = new APIClient(filesApiURL, serviceAuthToken);
 ```
