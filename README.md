@@ -23,6 +23,10 @@ if you are not already using jtipack as a maven repo, also add the following to 
 		</repository>
     </repositories>
 ```
+
+Note that the library is compile with and for Java 8.
+
+
 ### Usage in code
 To instatiate the API client, two parameters are needed:
 - the URL of the DP-Files API being used
