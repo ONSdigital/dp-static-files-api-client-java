@@ -29,8 +29,7 @@
     <properties>
         <java.version>1.8</java.version>
         <encoding>UTF-8</encoding>
-        <dp.logging.version>v1.7.0</dp.logging.version>
-        <jackson.version>2.11.0</jackson.version>
+        <dp.logging.version>v2.0.0-beta.3</dp.logging.version>
     </properties>
 
     <repositories>
@@ -55,7 +54,7 @@
         </dependency>
 
         <dependency>
-            <groupId>com.github.ONSdigital</groupId>
+            <groupId>com.github.onsdigital</groupId>
             <artifactId>dp-logging</artifactId>
             <version>${dp.logging.version}</version>
             <scope>provided</scope>
@@ -64,7 +63,7 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>RELEASE</version>
+            <version>5.9.0</version>
             <scope>test</scope>
         </dependency>
 
