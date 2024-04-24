@@ -1,6 +1,5 @@
 package com.github.onsdigital.dp.files.api;
 
-
 import org.apache.hc.client5.http.classic.methods.HttpPatch;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
@@ -24,7 +23,7 @@ public class APIClient implements Client {
         CloseableHttpResponse httpResponse;
 
         try {
-            HttpPatch request = new HttpPatch(hostname + "/collection/" + collectionId);
+            HttpPatch request = new HttpPatch(removeTrailingSlash(hostname) + "/collection/" + collectionId);
             request.addHeader("Authorization", "Bearer " + authToken);
             httpResponse = httpClient.execute(request);
         } catch (Exception e) {
@@ -55,5 +54,12 @@ public class APIClient implements Client {
             default:
                 throw new UnexpectedResponseException("Unexpected error from file api: " + body);
         }
+    }
+
+    private String removeTrailingSlash(String url){
+        if (url.endsWith("/")) {
+            return url.substring(0, url.length() - 1);
+        }
+        return url; // Return unchanged string if the string does not end with a slash
     }
 }
