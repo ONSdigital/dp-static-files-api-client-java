@@ -1,11 +1,12 @@
 package com.github.onsdigital.dp.files.api;
 
-import org.apache.http.HttpStatus;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPatch;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
+
+import org.apache.hc.client5.http.classic.methods.HttpPatch;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
 
 public class APIClient implements Client {
     private String hostname;
@@ -30,7 +31,7 @@ public class APIClient implements Client {
             throw new ConnectionException("error talking to files api", e);
         }
 
-        int statusCode = httpResponse.getStatusLine().getStatusCode();
+        int statusCode = httpResponse.getCode();
         if (statusCode == HttpStatus.SC_CREATED) {
             return;
         }
