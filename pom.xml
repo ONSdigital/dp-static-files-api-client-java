@@ -46,6 +46,7 @@
                 <configuration>
                     <!-- if CVSS >= 7.0 (high or critical) then ERROR else WARN -->
                     <fail>true</fail>
+                    <authId>ossindex</authId>
                     <cvssScoreThreshold>7.0</cvssScoreThreshold>
                 </configuration>
             </plugin>
