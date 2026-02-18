@@ -136,4 +136,43 @@ class APIClientTest {
 
         assertNotNull(e.getCause());
     }
+
+     @Test
+    void publishesMultipleRequestsWithoutLeakingConnections() throws Exception {
+        MockWebServer server = new MockWebServer(); 
+        server.enqueue(new MockResponse().setResponseCode(HttpStatus.SC_CREATED));
+        server.enqueue(new MockResponse().setResponseCode(HttpStatus.SC_CREATED));
+        server.enqueue(new MockResponse().setResponseCode(HttpStatus.SC_CREATED));
+        server.enqueue(new MockResponse().setResponseCode(HttpStatus.SC_CREATED));
+        server.enqueue(new MockResponse().setResponseCode(HttpStatus.SC_CREATED));
+        server.enqueue(new MockResponse().setResponseCode(HttpStatus.SC_CREATED));
+
+
+        HttpUrl url = server.url("");
+
+        Client client = new APIClient(url.toString(), TOKEN);
+
+        client.publishCollection(COLLECTION_ID);
+        client.publishCollection(COLLECTION_ID);
+        client.publishCollection(COLLECTION_ID);
+        client.publishCollection(COLLECTION_ID);
+        client.publishCollection(COLLECTION_ID);
+        client.publishCollection(COLLECTION_ID);
+
+        RecordedRequest first = server.takeRequest(1, TimeUnit.SECONDS);
+        RecordedRequest second = server.takeRequest(1, TimeUnit.SECONDS);
+        RecordedRequest third = server.takeRequest(1, TimeUnit.SECONDS);
+        RecordedRequest fourth = server.takeRequest(1, TimeUnit.SECONDS);
+        RecordedRequest fifth = server.takeRequest(1, TimeUnit.SECONDS);
+        RecordedRequest sixth = server.takeRequest(1, TimeUnit.SECONDS);
+
+        assertNotNull(first);
+        assertNotNull(second);
+        assertNotNull(third);
+        assertNotNull(fourth);
+        assertNotNull(fifth);
+        assertNotNull(sixth);
+
+        server.close();
+    }
 }
